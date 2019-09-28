@@ -11,6 +11,16 @@
 
 4、只需要软件不需要源码研究的可以在[点击此处打开下载页面](https://github.com/li-zheng-hao/yysScript/releases)中下载压缩包解压即可用。
 
+## v2.0版本更新
+
+1、大幅优化准确率和速度，目前测试双开无问题，理论上支持任意多个程序同时跑（一般不超过4个比较好）。
+
+2、F4快捷键停止脚本（缺点就是焦点要在脚本程序上，否则无效）。
+
+3、将一些bug修复，修改脚本UI。
+
+4、增加日志功能，查看当前运行状态。
+
 ## 软件截图
 
 ![image](https://github.com/li-zheng-hao/yysscript/raw/master/Doc/screenshot.jpg)

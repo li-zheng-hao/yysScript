@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import logging
 import os
 import random
@@ -12,12 +13,24 @@ import pyautogui
 from PIL import ImageGrab
 from matplotlib import pyplot as plt
 
+pyautogui.FAILSAFE = False
 logging.basicConfig(format="%(asctime)s :%(levelname)s:%(message)s", datefmt="%d-%M-%Y %H:%M:%S", level=logging.DEBUG)
 # 初始化SIFT探测器
 SIFT = cv2.xfeatures2d.SIFT_create()
 
 
-def GetLocation(target, screenShot):
+# SIFT=cv2.xfeatures2d.SURF_create(float(400))
+
+def ComputeScreenShot(screenShot):
+    """
+    由于屏幕分辨率高，计算耗时，这里优化一下
+    :return:
+    """
+    kp2, des2 = SIFT.detectAndCompute(screenShot, None)
+    return kp2, des2
+
+
+def GetLocation(target, kp2, des2):
     """
     获取目标图像在截图中的位置
     :param target:
@@ -25,32 +38,13 @@ def GetLocation(target, screenShot):
     :return: 返回坐标(x,y) 与opencv坐标系对应
     """
     MIN_MATCH_COUNT = 5
-    img1 = target  # 查询图片
-    img2 = screenShot  # 训练图片
-    # result = cv2.matchTemplate(screenShot, target, cv2.TM_CCOEFF_NORMED)
-    # location = numpy.where(result >= 0.8)
-    # n, ex, ey = 1, 0, 0
-    # for pt in zip(*location[::-1]):  # 其实这里经常是空的
-    #     x, y = pt[0] + 20, pt[1] + 20
-    #     show=cv2.circle(target, (x, y), 10, (0, 0, 255), 3)
-    #     cv2.imshow('s',show)
-    #     cv2.waitKey()
-    #     cv2.destroyAllWindows()
-    # res = cv2.matchTemplate(screenShot, target, cv2.TM_CCOEFF)
-    # min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-    #
-    # left_top = max_loc  # 左上角
-    # right_bottom = (left_top[0] + target.shape[0]//2, left_top[1] + target.shape[1]//2)  # 右下角
-    # # return right_bottom
-    # show=cv2.rectangle(screenShot, left_top, right_bottom, 255, 2)  # 画出矩形位置
-    # cv2.imshow('s',show)
-    # cv2.waitKey()
-    # cv2.destroyAllWindows()
-    # s=1
-
+    img1 = target  # cv2.cvtColor(target,cv2.COLOR_BGR2GRAY)# 查询图片
+    # img2 = screenShot
+    # img2 = cv2.cvtColor(screenShot, cv2.COLOR_BGR2GRAY)  # 训练图片
+    # img2 = cv2.resize(img2, dsize=None, fx=0.5, fy=0.5, interpolation=cv2.INTER_NEAREST)
     # 用SIFT找到关键点和描述符
+
     kp1, des1 = SIFT.detectAndCompute(img1, None)
-    kp2, des2 = SIFT.detectAndCompute(img2, None)
 
     FLANN_INDEX_KDTREE = 0
     index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
@@ -105,11 +99,12 @@ def Click(targetPosition):
     if targetPosition is None:
         print('未检测到目标')
     else:
-        newPos = CheatPos(targetPosition)
-        time.sleep(random.randint(200, 500) / 1000)
-        pyautogui.moveTo(newPos, duration=0.1)
-        pyautogui.click(newPos)
-        time.sleep(random.randint(100, 200) / 1000)
+
+        pyautogui.moveTo(targetPosition, duration=0.25)
+        pyautogui.click()
+        time.sleep(random.randint(500, 1000) / 1000)
+
+        # time.sleep(random.randint(100, 150) / 1000)
 
 
 def loadImgs():
@@ -129,16 +124,27 @@ def loadImgs():
 
     return obj
 
+
 def GetScreenShot():
     """
     获取屏幕截图
     :return:
     """
     screen = ImageGrab.grab()
-    screen.save('screen.jpg')
-    screen = cv2.imread('screen.jpg')
-    logging.info('截取一帧')
+    # screen.save('screen.jpg')
+    # screen = cv2.imread('screen.jpg')
+    screen = cv2.cvtColor(numpy.asarray(screen), cv2.COLOR_RGB2BGR)
+    logging.info('截屏成功')
     return screen
+
+
+def YuHunOneWindow(LogUI):
+    """
+    自动御魂，司机或者打手均可
+    :param LogUI:
+    :return:
+    """
+    YuHunTwoWindow(LogUI)
 
 
 def YuHunTwoWindow(LogUI):
@@ -146,66 +152,43 @@ def YuHunTwoWindow(LogUI):
     自动御魂,双开模式
     """
     imgs = loadImgs()
-    PassTime=1
+    PassTime = 0
+    LogUI.insert(END, '开始挑战\n')
+    clickCount = 0
     while True:
-        LogUI.insert(END, '开始挑战\n')
 
         logging.debug('开始挑战')
-        isStageOnePass=False
-        # 开始挑战
-        while isStageOnePass==False:
-            screen=GetScreenShot()
-            for i in ['tiaozhan']:
-                obj = imgs[i]
-                pos = GetLocation(obj, screen)
-                if not pos == None:
-                    isStageOnePass=True
-                    Click(pos)
-                    time.sleep(0.1)
 
+        isStageTwoPass = False
+        screen = GetScreenShot()
+        result = []
 
-        logging.debug('结算奖励')
-        isStageTwoPass=False
-        clickCount = 0
-        # 结算奖励 双开计算两次
-        while isStageTwoPass==False:
-            screen = GetScreenShot()
-            for i in ['end1', 'end2']:
-                obj = imgs[i]
-                pos = GetLocation(obj, screen)
-                logging.debug('检测结算目标图像')
-                if not pos == None:
-                    logging.info('结算点击'+str(clickCount)+'次')
-                    Click(pos)
-                    if clickCount == 4:
-                        isStageTwoPass=True
-                    clickCount += 1
+        # 为了优化速度，把计算屏幕截图的特征提取出来，避免重复运算
+        kp2, des2 = ComputeScreenShot(screen)
+        for i in ['auto','jieshou2','jieshou1', 'end1', 'end2', 'queding', 'tiaozhan']:
+            obj = imgs[i]
+            # begin = time.clock()
+            pos = GetLocation(obj, kp2, des2)
+            # logging.debug('检测结算目标图像')
+            # print(time.clock()-begin)
+            if not pos == None:
+                pos = CheatPos(pos, 10)
+                result.append(pos)
+                LogUI.insert(END,
+                         time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '-----检测到' + i + '目标\n')
+                LogUI.see(END)
+            else:
+                result.append(None)
+        # 开始检查结果
+        for i in result:
+            if i is not None:
+                Click(i)
 
+                if len(LogUI.get('1.0', 'end-1c')) > 1000:
+                    LogUI.delete(1.0, END)  # 使用 delete
+                    LogUI.insert(END, '清空日志\n')
+                    LogUI.see(END)
 
-        isStageThreePass=False
-        invitedParter = False
-        clickCount=0
-        while isStageThreePass==False:
-            screen = GetScreenShot()
-            if invitedParter == True:
-                break
-            logging.debug('第一次邀请队友并自动组队')
-            # 邀请队友
-
-            for i in ['queding', 'jieshou1']:
-                obj = imgs[i]
-                pos = GetLocation(obj, screen)
-                if not pos == None:
-                    clickCount += 1
-                    Click(pos)
-                    if clickCount == 2:
-                        invitedParter = True
-                        isStageThreePass=True
-                    continue
-
-        logging.info('已通关副本'+str(PassTime)+'次')
-        PassTime+=1
-        LogUI.insert(END, '已经通关'+str(PassTime)+'次\n')
 
 if __name__ == '__main__':
     pass
