@@ -9,6 +9,8 @@
 
 3、如果游戏更新后修改了一些图片，可以手动截图替换掉img路径下的图片。
 
+4、只需要软件不需要源码研究的可以在[点击此处打开下载页面](https://github.com/li-zheng-hao/yysScript/releases)中下载压缩包解压即可用。
+
 ## 软件截图
 
 ![image](https://github.com/li-zheng-hao/yysscript/raw/master/Doc/screenshot.jpg)
