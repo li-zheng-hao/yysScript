@@ -54,8 +54,10 @@ def StopAll(LogUI):
 
     :return:
     """
+    global tasks
     for i in tasks:
         stop_thread(i)
+    tasks=[]
     if LogUI is not None:
         LogUI.insert(END, '全部动作停止\n')
 
@@ -64,6 +66,7 @@ def Closing(app):
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
         StopAll(None)
         app.destroy()
+
 
 
 class Window:

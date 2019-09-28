@@ -148,7 +148,7 @@ def YuHunTwoWindow(LogUI):
     imgs = loadImgs()
     PassTime=1
     while True:
-        LogUI.insert(END, '开始挑战')
+        LogUI.insert(END, '开始挑战\n')
 
         logging.debug('开始挑战')
         isStageOnePass=False
@@ -205,7 +205,7 @@ def YuHunTwoWindow(LogUI):
 
         logging.info('已通关副本'+str(PassTime)+'次')
         PassTime+=1
-        LogUI.insert(END, '已经通关'+str(PassTime)+'次')
+        LogUI.insert(END, '已经通关'+str(PassTime)+'次\n')
 
 if __name__ == '__main__':
     pass
