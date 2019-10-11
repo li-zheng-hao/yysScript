@@ -172,7 +172,14 @@ def YuHunTwoWindow(LogUI):
             # logging.debug('检测结算目标图像')
             # print(time.clock()-begin)
             if not pos == None:
-                pos = CheatPos(pos, 10)
+                if i == 'end1':
+                    time.sleep(random.randint(500, 2000) / 1000)
+                    pos = CheatPos(pos, 80)
+                elif i =='end2':
+                    newPos=(pos[0]+80,pos[1]+80)
+                    pos = CheatPos(newPos, 5)
+                else:
+                    pos = CheatPos(pos, 10)
                 result.append(pos)
                 LogUI.insert(END,
                          time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '-----检测到' + i + '目标\n')
