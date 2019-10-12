@@ -115,7 +115,7 @@ class Window:
         frame2.pack(side=RIGHT, fill=BOTH, expand=YES)
         Button(frame1, command=lambda: YuhunOne(t3), text='自动御魂副本', width=20).pack(side=TOP, expand=YES)
         # Button(frame1, command=lambda: YuhunTwo(t3), text='御魂副本双开', width=20).pack(side=TOP, expand=YES)
-        Button(frame1, command=lambda: StopAll(t3), text='全部停止', width=20).pack(side=TOP, expand=YES)
+        Button(frame1, command=lambda: StopAll(t3), text='停止', width=20).pack(side=TOP, expand=YES)
 
         self.app.protocol("WM_DELETE_WINDOW", lambda: Closing(self.app))
         Window.LogUI = t3

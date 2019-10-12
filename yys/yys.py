@@ -165,7 +165,7 @@ def YuHunTwoWindow(LogUI):
 
         # 为了优化速度，把计算屏幕截图的特征提取出来，避免重复运算
         kp2, des2 = ComputeScreenShot(screen)
-        for i in ['auto','jieshou2','jieshou1', 'end1', 'end2', 'queding', 'tiaozhan']:
+        for i in ['auto','jieshou2','jieshou1', 'end1', 'end2', 'reject','queding', 'tiaozhan']:
             obj = imgs[i]
             # begin = time.clock()
             pos = GetLocation(obj, kp2, des2)
