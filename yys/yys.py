@@ -102,7 +102,7 @@ def Click(targetPosition):
 
         pyautogui.moveTo(targetPosition, duration=0.25)
         pyautogui.click()
-        time.sleep(random.randint(500, 1000) / 1000)
+        time.sleep(random.randint(600, 1200) / 1000)
 
         # time.sleep(random.randint(100, 150) / 1000)
 
@@ -152,20 +152,20 @@ def YuHunTwoWindow(LogUI):
     自动御魂,双开模式
     """
     imgs = loadImgs()
-    PassTime = 0
     LogUI.insert(END, '开始挑战\n')
-    clickCount = 0
+    Count = 1
     while True:
 
         logging.debug('开始挑战')
 
         isStageTwoPass = False
         screen = GetScreenShot()
+        WindowShape = screen.shape
         result = []
 
         # 为了优化速度，把计算屏幕截图的特征提取出来，避免重复运算
         kp2, des2 = ComputeScreenShot(screen)
-        for i in ['auto','jieshou2','jieshou1', 'end1', 'end2', 'reject','queding', 'tiaozhan']:
+        for i in ['auto', 'jieshou2', 'jieshou1', 'end1', 'end2', 'reject', 'queding', 'tiaozhan']:
             obj = imgs[i]
             # begin = time.clock()
             pos = GetLocation(obj, kp2, des2)
@@ -173,25 +173,33 @@ def YuHunTwoWindow(LogUI):
             # print(time.clock()-begin)
             if not pos == None:
                 if i == 'end1':
-                    time.sleep(random.randint(500, 2000) / 1000)
-                    pos = CheatPos(pos, 80)
-                elif i =='end2':
-                    newPos=(pos[0]+80,pos[1]+80)
+                    time.sleep(random.randint(300, 1000) / 1000)
+                    pos = CheatPos(pos, 50)
+                elif i == 'end2':
+                    newPos = (pos[0] + 80, pos[1] + 80)
                     pos = CheatPos(newPos, 5)
+                elif i == 'tiaozhan':
+                    LogUI.insert(END,
+                                 time.strftime('%Y-%m-%d %H:%M:%S',
+                                               time.localtime(time.time())) + '第' + str(Count) + '轮开始\n')
+                    Count += 1
                 else:
                     pos = CheatPos(pos, 10)
                 result.append(pos)
-                LogUI.insert(END,
-                         time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '-----检测到' + i + '目标\n')
+
                 LogUI.see(END)
             else:
                 result.append(None)
         # 开始检查结果
         for i in result:
             if i is not None:
-                Click(i)
-
-                if len(LogUI.get('1.0', 'end-1c')) > 1000:
+                print(WindowShape[1] * 0.06)
+                print(WindowShape[0] * 0.96)
+                if i[0] < WindowShape[1] * 0.06 or i[1] > WindowShape[0] * 0.96:
+                    continue
+                else:
+                    Click(i)
+                if len(LogUI.get('1.0', 'end-1c')) > 5000:
                     LogUI.delete(1.0, END)  # 使用 delete
                     LogUI.insert(END, '清空日志\n')
                     LogUI.see(END)
