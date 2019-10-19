@@ -106,7 +106,7 @@ class Window:
         self.app.resizable(0, 0)  # 阻止Python GUI的大小调整
         frame1 = Frame(self.app, padx=20)
         frame1.pack(side=LEFT, fill=BOTH)
-        t1 = tk.Label(frame1, text='护肝脚本v2.2', font=("华文行楷", 22), borderwidth=2).pack(side=TOP, fill=X, expand=YES)
+        t1 = tk.Label(frame1, text='护肝脚本', font=("华文行楷", 22), borderwidth=2).pack(side=TOP, fill=X, expand=YES)
 
         frame2 = Frame(self.app)
         t1 = tk.Label(frame2, text='日志', borderwidth=2, font=('微软雅黑', 10), height=1).pack(side=TOP, fill=X, expand=YES)
