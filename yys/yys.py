@@ -100,9 +100,9 @@ def Click(targetPosition):
         print('未检测到目标')
     else:
 
-        pyautogui.moveTo(targetPosition, duration=0.25)
+        pyautogui.moveTo(targetPosition, duration=0.20)
         pyautogui.click()
-        time.sleep(random.randint(600, 1200) / 1000)
+        time.sleep(random.randint(500, 1000) / 1000)
 
         # time.sleep(random.randint(100, 150) / 1000)
 
@@ -173,7 +173,7 @@ def YuHunTwoWindow(LogUI):
             # print(time.clock()-begin)
             if not pos == None:
                 if i == 'end1':
-                    time.sleep(random.randint(300, 1000) / 1000)
+                    time.sleep(random.randint(300, 800) / 1000)
                     pos = CheatPos(pos, 50)
                 elif i == 'end2':
                     newPos = (pos[0] + 80, pos[1] + 80)
