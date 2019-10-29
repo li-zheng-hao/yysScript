@@ -2,16 +2,19 @@
 import ctypes
 import inspect
 import threading
+import time
 import tkinter as tk
 from concurrent.futures import thread
+import tkinter
 from tkinter import *
 from tkinter import scrolledtext, messagebox
 
-from yys import YuHunTwoWindow, YuHunOneWindow
+from yysScript.yys.yys import YuHunTwoWindow, YuHunOneWindow
 
 MSG = []
 tasks = []
-
+NeedCloseGame = False
+NeedCloseSystem=False
 
 def _async_raise(tid, exctype):
     """raises the exception, performs cleanup if needed"""
@@ -32,24 +35,24 @@ def stop_thread(thread):
     _async_raise(thread.ident, SystemExit)
 
 
-def YuhunTwo(LogUI):
+def YuhunTwo(LogUI,NeedCloseGame,NeedCloseSystem,):
     """
     御魂副本双开
     :return:
     """
     messagebox.showinfo('提示', '请确保两个帐号都已经进入组队房间并且阵容锁定')
-    t = threading.Thread(target=YuHunTwoWindow, args=(LogUI,))
+    t = threading.Thread(target=YuHunTwoWindow, args=(LogUI,NeedCloseGame,NeedCloseSystem,))
     t.start()
     tasks.append(t)
 
 
-def YuhunOne(LogUI):
+def YuhunOne(LogUI,NeedCloseGame,NeedCloseSystem,):
     """
     御魂副本单开
     :return:
     """
     messagebox.showinfo('提示', '请确保帐号已经阵容锁定')
-    t = threading.Thread(target=YuHunOneWindow, args=(LogUI,))
+    t = threading.Thread(target=YuHunOneWindow, args=(LogUI,NeedCloseGame,NeedCloseSystem,))
     t.start()
     tasks.append(t)
 
@@ -65,12 +68,19 @@ def StopAll(LogUI):
             stop_thread(i)
         tasks = []
         if LogUI is not None:
+            LogUI.insert(END,
+                         time.strftime('%Y-%m-%d %H:%M:%S',
+                                       time.localtime(time.time())) + '脚本停止\n')
             LogUI.insert(END, '全部动作停止\n')
             LogUI.see(END)
-    except Exception:
+    except Exception as e:
         if LogUI is not None:
-            LogUI.insert(END, '程序异常\n')
+            tasks=[]
+            LogUI.insert(END,
+                         time.strftime('%Y-%m-%d %H:%M:%S',
+                                       time.localtime(time.time())) + '脚本停止异常,可能已经停止,请重启再试\n')
             LogUI.see(END)
+            print(e)
 
 
 def Closing(app):
@@ -80,6 +90,7 @@ def Closing(app):
             app.destroy()
     except Exception:
         sys.exit(-1)
+
 
 def ShortCut(event):
     """
@@ -95,6 +106,23 @@ def ShortCut(event):
         StopAll(Window.LogUI)
 
 
+def ChangeEndActionWithGame():
+    """
+    选择是否体力用完关闭游戏
+    :return:
+    """
+    global NeedCloseGame
+    NeedCloseGame = not NeedCloseGame
+    print('NeedCloseGame', str(NeedCloseGame))
+
+def ChangeEndActionWithSystem():
+    """
+    选择是否体力用完是否关机
+    :return:
+    """
+    global NeedCloseSystem
+    NeedCloseSystem = not NeedCloseSystem
+    print('NeedCloseSystem',NeedCloseSystem)
 
 class Window:
     def __init__(self):
@@ -113,7 +141,9 @@ class Window:
         t3 = scrolledtext.ScrolledText(frame2, font=('微软雅黑', 10))
         t3.pack(side=TOP, fill=X, expand=YES)
         frame2.pack(side=RIGHT, fill=BOTH, expand=YES)
-        Button(frame1, command=lambda: YuhunOne(t3), text='自动御魂副本', width=20).pack(side=TOP, expand=YES)
+        Button(frame1, command=lambda: YuhunOne(t3,NeedCloseGame,NeedCloseSystem), text='自动御魂副本', width=20).pack(side=TOP, expand=YES)
+        Checkbutton(frame1, text='体力用完自动关闭游戏', command=ChangeEndActionWithGame).pack(side=TOP,anchor='w')
+        Checkbutton(frame1, text='体力用完自动关机', command=ChangeEndActionWithSystem).pack(side=TOP,anchor='w')
         # Button(frame1, command=lambda: YuhunTwo(t3), text='御魂副本双开', width=20).pack(side=TOP, expand=YES)
         Button(frame1, command=lambda: StopAll(t3), text='停止', width=20).pack(side=TOP, expand=YES)
 
@@ -123,5 +153,5 @@ class Window:
         self.app.mainloop()  # 窗口的主事件循环，必须的。
 
 
-
-app = Window()
+if __name__ == '__main__':
+    app = Window()

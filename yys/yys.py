@@ -138,16 +138,16 @@ def GetScreenShot():
     return screen
 
 
-def YuHunOneWindow(LogUI):
+def YuHunOneWindow(LogUI, NeedCloseGame, NeedCloseSystem):
     """
     自动御魂，司机或者打手均可
     :param LogUI:
     :return:
     """
-    YuHunTwoWindow(LogUI)
+    YuHunTwoWindow(LogUI, NeedCloseGame, NeedCloseSystem)
 
 
-def YuHunTwoWindow(LogUI):
+def YuHunTwoWindow(LogUI, NeedCloseGame, NeedCloseSystem):
     """
     自动御魂,双开模式
     """
@@ -157,22 +157,44 @@ def YuHunTwoWindow(LogUI):
     while True:
 
         logging.debug('开始挑战')
-
-        isStageTwoPass = False
         screen = GetScreenShot()
         WindowShape = screen.shape
         result = []
 
         # 为了优化速度，把计算屏幕截图的特征提取出来，避免重复运算
         kp2, des2 = ComputeScreenShot(screen)
-        for i in ['auto', 'jieshou2', 'jieshou1', 'end1', 'end2', 'reject', 'queding', 'tiaozhan']:
+        for i in ['tili60', 'tili80', 'auto', 'jieshou2', 'jieshou1', 'end1', 'end2', 'reject', 'queding', 'tiaozhan']:
             obj = imgs[i]
             # begin = time.clock()
             pos = GetLocation(obj, kp2, des2)
             # logging.debug('检测结算目标图像')
             # print(time.clock()-begin)
             if not pos == None:
-                if i == 'end1':
+                if i == 'tili60' or i == 'tili80':
+                    print('window.py', NeedCloseSystem)
+                    if NeedCloseSystem:
+                        print('log')
+                        os.system('shutdown -s -t 60')
+                        return
+                    if not NeedCloseGame:
+                        # print('体力用完，需要手动关闭加成或游戏')
+                        LogUI.insert(END,
+                                     time.strftime('%Y-%m-%d %H:%M:%S',
+                                                   time.localtime(time.time())) + '体力用完，需要手动关闭加成或游戏\n')
+                        return
+                    # 结束进程
+                    hasProcess = True
+                    while hasProcess:
+                        if 'onmyoji' in os.popen('tasklist /FI "IMAGENAME eq onmyoji.exe"').read():
+                            os.system('TASKKILL /F /IM onmyoji.exe')
+                            hasProcess = True
+                        else:
+                            hasProcess = False
+
+                    # 进程已经结束
+
+                    return
+                elif i == 'end1':
                     time.sleep(random.randint(300, 800) / 1000)
                     pos = CheatPos(pos, 50)
                 elif i == 'end2':
@@ -207,10 +229,3 @@ def YuHunTwoWindow(LogUI):
 
 if __name__ == '__main__':
     pass
-    # begin=time.clock()
-    # a=cv2.imread('img/ying.jpg',0)
-    # b=cv2.imread('img/screenshot3.png',0)
-    # res=GetLocation(a,b)
-    # print(time.clock()-begin)
-    # res1=Click(res)
-    # print(res,res1)
